@@ -1,0 +1,14 @@
+--- urlgrabber/grabber.py.xxxx	2018-05-23 15:27:17.410000000 +0000
++++ urlgrabber/grabber.py	2018-05-23 15:27:40.850000000 +0000
+@@ -1302,7 +1302,10 @@ class PyCurlFileObject():
+
+     def _do_open(self):
+         self.curl_obj = _curl_cache
+-        self.curl_obj.reset() # reset all old settings away, just in case
++        try:
++            self.curl_obj.reset() # reset all old settings away, just in case
++        except AttributeError:
++            pass
+         # setup any ranges
+         self._set_opts()
+         self._do_grab()

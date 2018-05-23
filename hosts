@@ -1,0 +1,1 @@
+python-rpm-5 ansible_connection=docker release=5 ansible_python_interpreter=/usr/bin/python2.6

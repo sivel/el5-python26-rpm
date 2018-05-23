@@ -1,0 +1,4 @@
+yum.repos.d/epel-testing.repo
+yum.repos.d/epel.repo
+rpms/
+rpms/*

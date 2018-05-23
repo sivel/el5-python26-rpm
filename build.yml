@@ -1,0 +1,167 @@
+---
+- name: Build docker containers
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Build docker container
+      docker_container:
+        name: "{{ inventory_hostname }}"
+        image: "centos:{{ release }}"
+        state: started
+        command: sleep infinity
+        volumes:
+          - "{{ playbook_dir }}/yum.repos.d:/etc/yum.repos.d"
+      delegate_to: localhost
+
+- name: Bootstrap docker containers
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Test ansible round trip
+      ping:
+      ignore_errors: true
+      register: ping_test
+
+    - when: ping_test is failed
+      block:
+        - raw: urlgrabber https://archives.fedoraproject.org/pub/archive/epel/5/x86_64/epel-release-5-4.noarch.rpm
+        - raw: urlgrabber https://archives.fedoraproject.org/pub/archive/epel/RPM-GPG-KEY-EPEL-5
+        - raw: rpm --import RPM-GPG-KEY-EPEL-5
+        - raw: rpm -Uvh epel-release-5-4.noarch.rpm
+        - raw: yum install -y python26 python26-devel which
+
+- name: Build RPMs for RPM!
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Install global build deps
+      command: >
+        yum install -y redhat-rpm-config rpm-build gcc gcc-c++ make yum-utils python26-pycurl rpmdevtools
+      args:
+        warn: False
+
+    - name: Create RPM cache directory
+      file:
+        path: /rpm
+        state: directory
+
+    - name: Gather names of RPM packages
+      command: "yumdownloader --urls --source {{ item }}"
+      loop:
+        - rpm
+        - yum
+        - python-urlgrabber
+        - python-iniparse
+        - python-sqlite
+        - yum-metadata-parser
+      register: url_result
+
+    - name: Set facts for RPM package names
+      set_fact:
+        rpm_filename: "{{ url_result.results[0].stdout_lines|last|basename }}"
+        yum_filename: "{{ url_result.results[1].stdout_lines|last|basename }}"
+        urlgrabber_filename: "{{ url_result.results[2].stdout_lines|last|basename }}"
+        iniparse_filename: "{{ url_result.results[3].stdout_lines|last|basename }}"
+        sqlite_filename: "{{ url_result.results[4].stdout_lines|last|basename }}"
+        metadata_filename: "{{ url_result.results[5].stdout_lines|last|basename }}"
+
+    - name: Download src.rpm files
+      command: "yumdownloader --source --destdir /rpm {{ item }}"
+      loop:
+        - rpm
+        - yum
+        - python-urlgrabber
+        - python-iniparse
+        - python-sqlite
+        - yum-metadata-parser
+
+    - name: Install build deps for src.rpm files
+      command: "yum-builddep -y /rpm/{{ item }}"
+      loop:
+        - "{{ rpm_filename }}"
+        - "{{ yum_filename }}"
+        - "{{ urlgrabber_filename }}"
+        - "{{ iniparse_filename }}"
+        - "{{ sqlite_filename }}"
+        - "{{ metadata_filename }}"
+
+    - name: Create /usr/src/redhat dir
+      file:
+        path: /usr/src/redhat
+        state: directory
+
+    - name: Install src.rpm files
+      command: "rpm -ivh /rpm/{{ item }}"
+      args:
+        warn: False
+      loop:
+        - "{{ rpm_filename }}"
+        - "{{ yum_filename }}"
+        - "{{ urlgrabber_filename }}"
+        - "{{ iniparse_filename }}"
+        - "{{ sqlite_filename }}"
+        - "{{ metadata_filename }}"
+
+    - name: Upload urlgrabber patch
+      copy:
+        src: urlgrabber-no-reset.patch
+        dest: /usr/src/redhat/SOURCES/urlgrabber-no-reset.patch
+
+    - name: Download source files
+      command: spectool -g -R /usr/src/redhat/SPECS/python-urlgrabber.spec
+
+    - name: Patch spec files
+      patch:
+        src: "{{ item }}.diff"
+        dest: "/usr/src/redhat/SPECS/{{ item }}"
+      loop:
+        - rpm.spec
+        - python-urlgrabber.spec
+        - python-iniparse.spec
+        - python-sqlite.spec
+        - yum-metadata-parser.spec
+        - yum.spec
+
+    - name: Build RPMs
+      command: "rpmbuild -bb {{ item }}"
+      args:
+        chdir: /usr/src/redhat/SPECS
+      loop:
+        - rpm.spec
+        - python-urlgrabber.spec
+        - python-iniparse.spec
+        - python-sqlite.spec
+        - yum-metadata-parser.spec
+        - yum.spec
+
+    - name: Find new RPM files
+      find:
+        paths: /usr/src/redhat/RPMS
+        patterns: '*26*.rpm'
+        exclude: '*debuginfo*'
+        recurse: yes
+      register: rpms
+
+    - name: Create rpms dest dir
+      file:
+        path: ./rpms
+        state: directory
+      delegate_to: localhost
+
+    - name: Fetch the RPM files
+      fetch:
+        dest: ./rpms/
+        src: "{{ item.path }}"
+        flat: true
+      with_items: "{{ rpms.files }}"
+
+- name: Destroy docker containers
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Destroy docker container
+      docker_container:
+        name: "{{ inventory_hostname }}"
+        state: absent
+      delegate_to: localhost
+      when: keep_containers|default(False)|bool

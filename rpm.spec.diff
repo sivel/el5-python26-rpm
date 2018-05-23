@@ -1,0 +1,43 @@
+--- rpm.spec.1486.2018-05-23@16:34:26~	2014-11-18 16:23:38.000000000 +0000
++++ rpm.spec	2018-05-23 16:34:33.650000000 +0000
+@@ -1,4 +1,4 @@
+-%define with_python_version     2.4%{nil}
++%define with_python_version     2.6%{nil}
+ %define with_apidocs            1%{nil}
+ 
+ %define rpmhome /usr/lib/rpm
+@@ -159,7 +159,7 @@ BuildRequires: gettext-devel
+ BuildRequires: libselinux-devel
+ BuildRequires: ncurses-devel
+ BuildRequires: bzip2-devel >= 0.9.0c-2
+-BuildRequires: python-devel >= %{with_python_version}
++BuildRequires: python26-devel >= %{with_python_version}
+ 
+ BuildConflicts: neon-devel
+ 
+@@ -219,14 +219,11 @@ Requires: unzip gzip bzip2 cpio xz
+ The rpm-build package contains the scripts and executable programs
+ that are used to build packages using the RPM Package Manager.
+ 
+-%package python
++%package python26
+ Summary: Python bindings for apps which will manipulate RPM packages
+ Group: Development/Libraries
+-Requires: rpm-libs = %{version}-%{release}
+-Requires: rpm = %{version}-%{release}
+-Requires: popt = %{poptver}-%{release}
+ 
+-%description python
++%description python26
+ The rpm-python package contains a module that permits applications
+ written in the Python programming language to use the interface
+ supplied by RPM Package Manager libraries.
+@@ -557,7 +554,7 @@ exit 0
+ %{_mandir}/man8/rpmbuild.8*
+ %{_mandir}/man8/rpmdeps.8*
+ 
+-%files python
++%files python26
+ %defattr(-,root,root)
+ %{_libdir}/python%{with_python_version}/site-packages/rpm
+ 

@@ -1,0 +1,45 @@
+--- yum-metadata-parser.spec.2694.2018-05-23@16:35:12~	2012-07-10 20:31:28.000000000 +0000
++++ yum-metadata-parser.spec	2018-05-23 16:35:23.780000000 +0000
+@@ -1,10 +1,10 @@
+-%{!?python_sitelib_platform: %define python_sitelib_platform %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
++%{!?python_sitelib_platform: %define python_sitelib_platform %(python26 -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
+ 
+ Summary: A fast metadata parser for yum
+-Name: yum-metadata-parser
++Name: yum26-metadata-parser
+ Version: 1.1.2
+ Release: 4%{?dist}
+-Source0: http://linux.duke.edu/projects/yum/download/%{name}/%{name}-%{version}.tar.gz
++Source0: http://linux.duke.edu/projects/yum/download/yum-metadata-parser/yum-metadata-parser-%{version}.tar.gz
+ Patch1: yum-metadata-parser-1.1.2-no-updates.patch
+ Patch2: BZ-725798-malformed-primary.patch
+ License: GPLv2
+@@ -16,23 +16,24 @@ BuildRequires: glib2-devel
+ BuildRequires: libxml2-devel
+ BuildRequires: sqlite-devel
+ BuildRequires: pkgconfig
+-BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
++BuildRoot:  %{_tmppath}/yum-metadata-parser-%{version}-%{release}-root-%(%{__id_u} -n)
+ 
+ %description
+ Fast metadata parser for yum implemented in C.
+ 
+ %prep
+-%setup -q
++%setup -q -n yum-metadata-parser-%{version}
+ 
+ %patch1 -p1
+ %patch2 -p1
+ 
+ %build
+-%{__python} setup.py build
++python26 setup.py build
+ 
+ %install
+ %{__rm} -rf %{buildroot}
+-%{__python} setup.py install -O1 --root=%{buildroot}
++python26 setup.py install -O1 --root=%{buildroot}
++%{__rm} -rf %{buildroot}/%{python_sitelib_platform}/yum_metadata_parser-1.1.2-py2.6.egg-info
+ 
+ %clean
+ %{__rm} -rf %{buildroot}

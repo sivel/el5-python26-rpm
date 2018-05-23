@@ -1,0 +1,88 @@
+--- yum.spec.2949.2018-05-23@16:35:25~	2012-07-26 08:12:32.000000000 +0000
++++ yum.spec	2018-05-23 16:35:45.880000000 +0000
+@@ -1,12 +1,12 @@
+-%{!?python_sitelib: %define python_sitelib %(python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
++%define python_sitelib %(python26 -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")
+ 
+ Summary: RPM installer/updater
+-Name: yum
++Name: yum26
+ Version: 3.2.22
+ Release: 40.el5.centos
+ License: GPLv2+
+ Group: System Environment/Base
+-Source0: http://yum.baseurl.org/download/3.2/%{name}-%{version}.tar.gz
++Source0: http://yum.baseurl.org/download/3.2/yum-%{version}.tar.gz
+ Source1: yum.conf.centos
+ Source2: yum-updatesd.conf.fedora
+ 
+@@ -74,21 +74,18 @@ Patch232: BZ-749337-localupdate-installs
+ 
+ URL: http://yum.baseurl.org/
+ BuildArchitectures: noarch
+-BuildRequires: python
++BuildRequires: python26
+ BuildRequires: gettext
+ BuildRequires: intltool
+ Conflicts: pirut < 1.1.4
+ Conflicts: yum-versionlock < 1.1.16-13.el5
+-Requires: python >= 2.4, rpm-python, rpm >= 0:4.4.2
+-Requires: python-iniparse
+-Requires: python-sqlite
++Requires: python26, rpm-python, rpm >= 0:4.4.2
+ Requires: urlgrabber >= 3.1.0
+-Requires: python-elementtree
+ # Make sure metadata code is updated too
+ Requires: yum-metadata-parser >= 1.1.0
+ Requires: yum-fastestmirror
+ Conflicts: yum-rhn-plugin < 0.5.3-30.el5
+-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
++BuildRoot: %{_tmppath}/yum-%{version}-%{release}-root-%(%{__id_u} -n)
+ Obsoletes: yum-skip-broken
+ Conflicts: yum-skip-broken
+ Obsoletes: yum-repolist
+@@ -123,7 +120,7 @@ yum-updatesd provides a daemon which che
+ can notify you when they are available via email, syslog or dbus. 
+ 
+ %prep
+-%setup -q
++%setup -q -n yum-%{version}
+ 
+ %define _default_patch_fuzz 2
+ 
+@@ -180,7 +177,7 @@ make
+ 
+ %install
+ [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
+-make DESTDIR=$RPM_BUILD_ROOT install
++make PYTHON=python26 DESTDIR=$RPM_BUILD_ROOT install
+ install -m 644 %{SOURCE1} $RPM_BUILD_ROOT/etc/yum.conf
+ 
+ mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/yum/pluginconf.d $RPM_BUILD_ROOT/usr/lib/yum-plugins
+@@ -196,22 +193,21 @@ rm -f $RPM_BUILD_ROOT/%{_sysconfdir}/dbu
+ rm -f $RPM_BUILD_ROOT/%{_sbindir}/yum-updatesd
+ rm -f $RPM_BUILD_ROOT/%{_mandir}/man*/yum-updatesd*
+ 
+-rm -f $RPM_BUILD_ROOT/%{_datadir}/yum-cli/yumupd.py*
++rm -rf $RPM_BUILD_ROOT/%{_datadir}/yum-cli/
+ 
+-%find_lang %name
++%find_lang yum
+ 
+ %clean
+ [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
+ 
+-%files -f %{name}.lang
++%files -f yum.lang
+ %defattr(-, root, root, -)
+ %doc README AUTHORS COPYING TODO INSTALL ChangeLog PLUGINS
+ %config(noreplace) %{_sysconfdir}/yum.conf
+ %dir %{_sysconfdir}/yum
+ %dir %{_sysconfdir}/yum.repos.d
+ %config(noreplace) %{_sysconfdir}/logrotate.d/yum
+-%dir %{_datadir}/yum-cli
+-%{_datadir}/yum-cli/*
++
+ %{_bindir}/yum
+ %{python_sitelib}/yum
+ %{python_sitelib}/rpmUtils

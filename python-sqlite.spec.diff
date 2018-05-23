@@ -1,0 +1,25 @@
+--- python-sqlite.spec.2588.2018-05-23@16:35:08~	2006-11-22 14:28:50.000000000 +0000
++++ python-sqlite.spec	2018-05-23 16:35:10.430000000 +0000
+@@ -1,7 +1,7 @@
+ %define real_name pysqlite
+ 
+ Summary: Python bindings for sqlite.
+-Name: python-sqlite
++Name: python26-sqlite
+ Version: 1.1.7
+ Release: 1.2.1
+ License: GPL
+@@ -21,11 +21,11 @@ sqlite is a simple database engine.
+ rm -f doc/rest/.*swp
+ 
+ %build
+-python ./setup.py build 
++python26 ./setup.py build 
+ 
+ %install
+ rm -rf ${RPM_BUILD_ROOT}
+-python ./setup.py install --prefix="${RPM_BUILD_ROOT}/%{_prefix}"
++python26 ./setup.py install --prefix="${RPM_BUILD_ROOT}/%{_prefix}"
+ 
+ %clean
+ rm -rf ${RPM_BUILD_ROOT}

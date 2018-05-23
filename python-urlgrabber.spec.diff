@@ -1,0 +1,77 @@
+--- python-urlgrabber.spec.1807.2018-05-23@16:34:39~	2010-08-11 19:05:13.000000000 +0000
++++ python-urlgrabber.spec	2018-05-23 16:35:00.840000000 +0000
+@@ -1,52 +1,39 @@
+-%{!?python_sitelib: %define python_sitelib %(python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
++%{!?python_sitelib: %define python_sitelib %(python26 -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
+ 
+ Summary: A high-level cross-protocol url-grabber
+-Name: python-urlgrabber
+-Version: 3.1.0
++Name: python26-urlgrabber
++Version: 3.9.1
+ Release: 6%{?dist}
+-Source0: urlgrabber-%{version}.tar.gz
+-Patch0: urlgrabber-keepalive.patch
+-Patch1: urlgrabber-string-type.patch
+-Patch3: urlgrabber-ftp-port.patch
+-Patch4: urlgrabber-progress-ui.patch
+-Patch5: urlgrabber-grab-no-range.patch
+-Patch6: urlgrabber-no-ssl-ok.patch
+-Patch7: urlgrabber-keepalive-shared.patch
+-Patch8: BZ-576651-user-pass-unquote.patch
+-Patch9: BZ-500912-progress-serial+minors.patch
++Source0: http://urlgrabber.baseurl.org/download/urlgrabber-%{version}.tar.gz
+ License: LGPLv2+
+ Group: Development/Libraries
+-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
++BuildRoot: %{_tmppath}/urlgrabber-%{version}-%{release}-buildroot
+ BuildArch: noarch
+-Url: http://linux.duke.edu/projects/urlgrabber/
++Url: http://urlgrabber.baseurl.org/
+ Provides: urlgrabber = %{version}-%{release}
+-Requires: m2crypto >= 0.16-5
++Requires: python26-pycurl
++BuildRequires: python26-pycurl
++Patch0: urlgrabber-no-reset.patch
+ 
+ %description
+-A high-level cross-protocol url-grabber for python supporting HTTP, FTP 
++A high-level cross-protocol url-grabber for python26 supporting HTTP, FTP 
+ and file locations.  Features include keepalive, byte ranges, throttling,
+ authentication, proxies and more.
+ 
+ %prep
+ %setup -q -n urlgrabber-%{version}
+-%patch0 -p0
+-%patch1 -p1
+-%patch3 -p0
+-%patch4 -p1
+-%patch5 -p1
+ # RHN always needs SSL, so might as well leave this out
+ #patch6 -p1
+-%patch7 -p1
+-%patch8 -p1
+-%patch9 -p1
++%patch0 -p0
+ 
+ %build
+-python setup.py build
++python26 setup.py build
+ 
+ %install
+ rm -rf $RPM_BUILD_ROOT
+-python setup.py install -O1 --root=$RPM_BUILD_ROOT
++python26 setup.py install -O1 --root=$RPM_BUILD_ROOT
+ rm -rf $RPM_BUILD_ROOT/%{_docdir}/urlgrabber-%{version}
++rm -f $RPM_BUILD_ROOT/%{_bindir}/urlgrabber
+ 
+ %clean
+ rm -rf $RPM_BUILD_ROOT
+@@ -55,7 +42,6 @@ rm -rf $RPM_BUILD_ROOT
+ %defattr(-,root,root,-)
+ %doc ChangeLog LICENSE README TODO
+ %{python_sitelib}/urlgrabber*
+-%{_bindir}/urlgrabber
+ 
+ %changelog
+ * Wed Aug 11 2010 James Antill <jantill@redhat.com> - 3.1.0-6
