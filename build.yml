@@ -112,7 +112,7 @@
 
     - name: Patch spec files
       patch:
-        src: "{{ item }}.diff"
+        src: "spec_diffs/{{ item }}.diff"
         dest: "/usr/src/redhat/SPECS/{{ item }}"
       loop:
         - rpm.spec
