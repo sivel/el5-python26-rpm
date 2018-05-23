@@ -12,8 +12,8 @@ This utilizes docker, and assumes that docker is running locally and can utilize
 ansible-playbook -v -i hosts build.yml
 ```
 
-This will download the python2.6 RPMs to `./rpm`
+This will download the python2.6 RPMs to `./rpms`
 
 ### Installing
 
-Install the RPMs from the `./rpm` directory
+Install the RPMs from the `./rpms` directory
