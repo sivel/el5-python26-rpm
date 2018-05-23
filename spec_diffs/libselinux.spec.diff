@@ -1,0 +1,59 @@
+--- libselinux.spec.orig	2014-08-19 17:22:35.000000000 +0000
++++ libselinux.spec	2018-05-23 17:44:23.430000000 +0000
+@@ -1,6 +1,6 @@
+ %define ruby_sitearch %(ruby -rrbconfig -e "puts Config::CONFIG['sitearchdir']")
+ %define libsepolver 1.15.2-1
+-%{!?python_sitearch: %define python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
++%{!?python_sitearch: %define python_sitearch %(python26 -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
+ 
+ %define dist .el5.centos 
+ 
+@@ -14,9 +14,10 @@ Source: http://www.nsa.gov/selinux/archi
+ Patch0: libselinux-rhat.patch
+ Patch1: libselinux-1.33.4_enabled.patch
+ Patch2: libselinux-is-enabled.patch
++Patch3: libselinux-py26.patch
+ URL: http://www.nsa.gov/selinux
+ 
+-BuildRequires: python-devel ruby-devel ruby swig
++BuildRequires: python26-devel ruby-devel ruby swig
+ 
+ BuildRequires: libsepol-devel >= %{libsepolver} swig
+ Requires: libsepol >= %{libsepolver} setransd
+@@ -45,14 +46,14 @@ Requires: libselinux = %{version}-%{rele
+ %description utils
+ The libselinux-utils package contains the SELinux utilities
+ 
+-%package python
+-Summary: python bindings for libselinux
++%package python26
++Summary: python26 bindings for libselinux
+ Group: Development/Libraries
+ Requires: libselinux = %{version}-%{release} 
+-BuildRequires: python-devel
++BuildRequires: python26-devel
+ 
+-%description python
+-The libselinux-python package contains the python bindings for developing SELinux 
++%description python26
++The libselinux-python26 package contains the python26 bindings for developing SELinux 
+ applications. 
+ 
+ %package ruby
+@@ -79,6 +80,7 @@ needed for developing SELinux applicatio
+ %patch0 -p1 -b .rhat 
+ %patch1 -p1 -b .docker 
+ %patch2 -p1 -b .docker2
++%patch3 -p0
+ 
+ %build
+ make clean
+@@ -149,7 +151,7 @@ exit 0
+ %{_includedir}/selinux/*
+ %{_mandir}/man3/*
+ 
+-%files python
++%files python26
+ %defattr(-,root,root,0755)
+ %dir %{python_sitearch}/selinux
+ %{python_sitearch}/selinux/*

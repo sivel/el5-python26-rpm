@@ -1,0 +1,11 @@
+--- src/Makefile.xxxx	2018-05-23 17:25:21.230000000 +0000
++++ src/Makefile	2018-05-23 17:25:54.200000000 +0000
+@@ -3,7 +3,7 @@ PREFIX ?= $(DESTDIR)/usr
+ LIBDIR ?= $(PREFIX)/lib
+ SHLIBDIR ?= $(DESTDIR)/lib
+ INCLUDEDIR ?= $(PREFIX)/include
+-PYLIBVER ?= $(shell python -c 'import sys;print "python%d.%d" % sys.version_info[0:2]')
++PYLIBVER ?= $(shell python26 -c 'import sys;print "python%d.%d" % sys.version_info[0:2]')
+ PYINC ?= /usr/include/$(PYLIBVER)
+ PYLIB ?= /usr/lib/$(PYLIBVER)
+ PYTHONLIBDIR ?= $(LIBDIR)/$(PYLIBVER)

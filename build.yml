@@ -54,6 +54,7 @@
         - python-iniparse
         - python-sqlite
         - yum-metadata-parser
+        - libselinux
       register: url_result
 
     - name: Set facts for RPM package names
@@ -64,6 +65,7 @@
         iniparse_filename: "{{ url_result.results[3].stdout_lines|last|basename }}"
         sqlite_filename: "{{ url_result.results[4].stdout_lines|last|basename }}"
         metadata_filename: "{{ url_result.results[5].stdout_lines|last|basename }}"
+        libselinux_filename: "{{ url_result.results[6].stdout_lines|last|basename }}"
 
     - name: Download src.rpm files
       command: "yumdownloader --source --destdir /rpm {{ item }}"
@@ -74,6 +76,7 @@
         - python-iniparse
         - python-sqlite
         - yum-metadata-parser
+        - libselinux
 
     - name: Install build deps for src.rpm files
       command: "yum-builddep -y /rpm/{{ item }}"
@@ -84,6 +87,7 @@
         - "{{ iniparse_filename }}"
         - "{{ sqlite_filename }}"
         - "{{ metadata_filename }}"
+        - "{{ libselinux_filename }}"
 
     - name: Create /usr/src/redhat dir
       file:
@@ -101,14 +105,18 @@
         - "{{ iniparse_filename }}"
         - "{{ sqlite_filename }}"
         - "{{ metadata_filename }}"
+        - "{{ libselinux_filename }}"
 
-    - name: Upload urlgrabber patch
+    - name: Upload package patches
       copy:
-        src: urlgrabber-no-reset.patch
-        dest: /usr/src/redhat/SOURCES/urlgrabber-no-reset.patch
+        src: "patches/{{ item }}"
+        dest: "/usr/src/redhat/SOURCES/{{ item }}"
+      loop:
+        - urlgrabber-no-reset.patch
+        - libselinux-py26.patch
 
     - name: Download source files
-      command: spectool -g -R /usr/src/redhat/SPECS/python-urlgrabber.spec
+      shell: spectool -g -R /usr/src/redhat/SPECS/python-urlgrabber.spec
 
     - name: Patch spec files
       patch:
@@ -121,6 +129,7 @@
         - python-sqlite.spec
         - yum-metadata-parser.spec
         - yum.spec
+        - libselinux.spec
 
     - name: Build RPMs
       command: "rpmbuild -bb {{ item }}"
@@ -133,6 +142,7 @@
         - python-sqlite.spec
         - yum-metadata-parser.spec
         - yum.spec
+        - libselinux.spec
 
     - name: Find new RPM files
       find:
@@ -164,4 +174,4 @@
         name: "{{ inventory_hostname }}"
         state: absent
       delegate_to: localhost
-      when: keep_containers|default(False)|bool
+      when: not keep_containers|default(False)|bool
