@@ -6,6 +6,8 @@ This repo contains patches for EL5 RPMs to support the python rpm and yum module
 
 ### Building
 
+This utilizes docker, and assumes that docker is running locally and can utilize bind mount volumes. As such this also requires the `docker` python module.
+
 ```
 ansible-playbook -v -i hosts build.yml
 ```
