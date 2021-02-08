@@ -121,6 +121,7 @@
 
     - name: Download source files
       shell: spectool -g -R /usr/src/redhat/SPECS/python-urlgrabber.spec
+      ignore_errors: true
 
     - name: Patch spec files
       patch:
