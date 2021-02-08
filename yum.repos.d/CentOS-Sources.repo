@@ -2,7 +2,7 @@
 name=CentOS-5.11 - Base Sources
 baseurl=http://vault.centos.org/5.11/os/Source/
 gpgcheck=1
-enabled=0
+enabled=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-5
 
 #released updates
@@ -10,7 +10,7 @@ gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-5
 name=CentOS-5.11 - Updates Sources
 baseurl=http://vault.centos.org/5.11/updates/Source/
 gpgcheck=1
-enabled=0
+enabled=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-5
 
 #additional packages that may be useful
@@ -18,7 +18,7 @@ gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-5
 name=CentOS-5.11 - Extras Sources
 baseurl=http://vault.centos.org/5.11/extras/Source/
 gpgcheck=1
-enabled=0
+enabled=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-5
 
 #additional packages that extend functionality of existing packages
@@ -26,5 +26,5 @@ gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-5
 name=CentOS-5.11 - Plus Sources
 baseurl=http://vault.centos.org/5.11/centosplus/Source/
 gpgcheck=1
-enabled=0
+enabled=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-5
