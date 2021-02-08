@@ -7,9 +7,8 @@ ENV LANG="en_US.UTF-8" \
 
 COPY ./yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo
 COPY ./yum.repos.d/CentOS-Sources.repo /etc/yum.repos.d/CentOS-Sources.repo
-COPY ./yum.repos.d/libselinux.repo /etc/yum.repos.d/libselinux.repo
 COPY ./yum.repos.d/CentOS-fasttrack.repo /etc/yum.repos.d/CentOS-fasttrack.repo
-
+COPY ./yum.repos.d/libselinux.repo /etc/yum.repos.d/libselinux.repo
 
 COPY ./patches /usr/src/redhat/SOURCES/
 COPY ./spec_diffs /usr/src/redhat/SPECS
@@ -36,7 +35,7 @@ RUN mkdir -p /rpm && \
         python-iniparse \
         python-sqlite \
         yum-metadata-parser \
-        yum-libselinux-parser && \
+        libselinux && \
     yumdownloader --source --destdir /rpm \
     rpm \
     yum \
@@ -44,7 +43,7 @@ RUN mkdir -p /rpm && \
     python-iniparse \
     python-sqlite \
     yum-metadata-parser \
-    yum-libselinux-parser
+    libselinux
 
 WORKDIR /rpm
 
@@ -61,7 +60,8 @@ RUN spectool -g -R /usr/src/redhat/SPECS/python-urlgrabber.spec && \
     rpmbuild -bb python-iniparse.spec && \
     rpmbuild -bb python-sqlite.spec && \
     rpmbuild -bb yum-metadata-parser.spec && \
-    rpmbuild -bb yum.spec
+    rpmbuild -bb yum.spec && \
+    rpmbuild -bb libselinux.spec
 
 RUN mkdir -p /rpms && \
     cp /usr/src/redhat/RPMS/x86_64/*.rpm /rpms && \
