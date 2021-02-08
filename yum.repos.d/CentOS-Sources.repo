@@ -28,3 +28,10 @@ baseurl=http://vault.centos.org/5.11/centosplus/Source/
 gpgcheck=1
 enabled=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-5
+
+[fasttracksource]
+name=CentOS-5 - fasttrack Sources
+baseurl=http://vault.centos.org/5.11/fasttrack/Source/
+gpgcheck=1
+enabled=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-5
