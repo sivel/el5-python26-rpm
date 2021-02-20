@@ -24,11 +24,14 @@
 
     - when: ping_test is failed
       block:
-        - raw: urlgrabber https://archives.fedoraproject.org/pub/archive/epel/5/x86_64/epel-release-5-4.noarch.rpm
-        - raw: urlgrabber https://archives.fedoraproject.org/pub/archive/epel/RPM-GPG-KEY-EPEL-5
+        - raw: urlgrabber http://archives.fedoraproject.org/pub/archive/epel/5/x86_64/epel-release-5-4.noarch.rpm
+        - raw: urlgrabber http://archives.fedoraproject.org/pub/archive/epel/RPM-GPG-KEY-EPEL-5
         - raw: rpm --import RPM-GPG-KEY-EPEL-5
         - raw: rpm -Uvh epel-release-5-4.noarch.rpm
+        - raw: yum install -y openssl1
+        - raw: yum update -y --exclude=openssl
         - raw: yum install -y python26 python26-devel which
+        - raw: useradd -s /sbin/nologin mockbuild
 
 - name: Build RPMs for RPM!
   hosts: all
@@ -36,9 +39,10 @@
   tasks:
     - name: Install global build deps
       command: >
-        yum install -y redhat-rpm-config rpm-build gcc gcc-c++ make yum-utils python26-pycurl rpmdevtools
+        yum install -y redhat-rpm-config rpm-build gcc gcc-c++ make yum-utils python26-pycurl rpmdevtools mock
       args:
         warn: False
+      ignore_errors: true
 
     - name: Create RPM cache directory
       file:
@@ -117,6 +121,7 @@
 
     - name: Download source files
       shell: spectool -g -R /usr/src/redhat/SPECS/python-urlgrabber.spec
+      ignore_errors: true
 
     - name: Patch spec files
       patch:
@@ -146,8 +151,16 @@
 
     - name: Find new RPM files
       find:
-        paths: /usr/src/redhat/RPMS
-        patterns: '*26*.rpm'
+        paths: /usr/src/redhat/RPMS/noarch/
+        patterns: '*.rpm'
+        exclude: '*debuginfo*'
+        recurse: yes
+      register: rpms
+
+    - name: Find new RPM files
+      find:
+        paths: /usr/src/redhat/RPMS/x86_64/
+        patterns: '*.rpm'
         exclude: '*debuginfo*'
         recurse: yes
       register: rpms
